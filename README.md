@@ -16,77 +16,93 @@ Each action emailed to Things Mail Drop
 Tasks appear in your Things Inbox
 ```
 
-## Project structure
+## Quick Setup (recommended)
 
-```
-├── src/
-│   ├── Code.gs          # Main processing logic
-│   ├── Config.gs        # Configuration and secrets management
-│   ├── Triggers.gs      # Automatic trigger setup
-│   ├── Test.gs          # Test functions
-│   └── appsscript.json  # Apps Script manifest
-├── .clasp.json.example  # Clasp config template
-├── .gitignore
-└── README.md
-```
+The easiest way to get started - no coding required.
 
-## Setup
+### Prerequisites
+
+- Google account
+- Things 3 with Things Cloud enabled
+- Claude API key from [console.anthropic.com](https://console.anthropic.com)
+
+### 1. Copy the script
+
+**[Click here to copy the script to your Google account](https://script.google.com/d/1E4S5AIIWpE8FwCXMghUNPavj35HN1lBfZjFEDjLzsnaltMZ_LbxURSbZ/edit?usp=sharing)**
+
+Then click **File → Make a copy**
+
+### 2. Configure your settings
+
+In your copied script:
+
+1. Click **Project Settings** (gear icon on the left)
+2. Scroll to **Script Properties**
+3. Click **Add Script Property** for each:
+
+| Property | Description | Example |
+|----------|-------------|---------|
+| `THINGS_EMAIL` | Your Things Mail Drop address | `add-to-things-xxxxx@things.email` |
+| `YOUR_NAME` | Your name as it appears in transcripts | `Jane Smith` |
+| `CLAUDE_API_KEY` | Your Anthropic API key | `sk-ant-xxxxx` |
+
+> **Finding your Things Mail Drop address:** In Things 3, go to **Settings → Things Cloud → Mail to Things**
+
+### 3. Test it
+
+1. Select `viewConfig` from the function dropdown → click **Run**
+2. Select `testThingsMailDrop` → **Run** → check your Things inbox
+3. Select `testExtraction` → **Run** → check the logs
+
+### 4. Enable automatic processing
+
+Select `setupTrigger` → **Run**
+
+Done! The script will now check for new transcripts every 15 minutes.
+
+---
+
+## Developer Setup
+
+For developers who want to customize or contribute.
 
 ### Prerequisites
 
 - Node.js installed
-- A Google account
-- Things 3 with Things Cloud enabled (for Mail Drop)
+- Google account
+- Things 3 with Things Cloud enabled
 - Claude API key from [console.anthropic.com](https://console.anthropic.com)
 
-### 1. Install clasp
+### 1. Clone and setup
 
 ```bash
+# Install clasp (Google Apps Script CLI)
 npm install -g @google/clasp
-```
 
-### 2. Login to Google
-
-```bash
+# Login to Google
 clasp login
-```
 
-This opens a browser to authenticate with your Google account.
+# Enable Apps Script API at:
+# https://script.google.com/home/usersettings
 
-### 3. Enable Apps Script API
-
-Visit https://script.google.com/home/usersettings and enable the **Google Apps Script API**.
-
-### 4. Clone this repo
-
-```bash
+# Clone the repo
 git clone https://github.com/Joeckick/meeting-actions-to-things.git
 cd meeting-actions-to-things
-```
 
-### 5. Create a new Apps Script project
-
-```bash
+# Create your Apps Script project
 clasp create --title "Meeting Actions to Things" --rootDir ./src
-```
 
-This creates `.clasp.json` with your script ID.
-
-### 6. Push the code
-
-```bash
+# Push the code
 clasp push
-```
 
-### 7. Configure secrets
-
-Open the Apps Script editor:
-
-```bash
+# Open in browser
 clasp open
 ```
 
-Then:
+### 2. Configure Script Properties
+
+In the Apps Script editor:
+
 1. Click **Project Settings** (gear icon)
 2. Scroll to **Script Properties**
 3. Add each property:
@@ -104,21 +120,44 @@ Optional:
 | `PROCESSED_LABEL` | `Actions-Extracted` | Gmail label for processed emails |
 | `GMAIL_SEARCH_QUERY` | `from:gemini-notes@google.com in:inbox -label:Actions-Extracted` | Gmail search filter |
 
-### 8. Test the integration
+### 3. Test and enable
 
-In the Apps Script editor, run these functions in order:
+```bash
+# Test in Apps Script editor:
+# 1. viewConfig() - verify settings
+# 2. testThingsMailDrop() - test Things integration
+# 3. testExtraction() - test Claude extraction
+# 4. setupTrigger() - enable automation
+```
 
-1. `viewConfig()` - verify your settings are correct
-2. `testThingsMailDrop()` - check a test task appears in Things
-3. `testExtraction()` - check Claude extracts actions correctly
-4. `testWithRealEmail()` - test extraction on a real transcript (doesn't send to Things)
-5. `processNewTranscripts()` - process for real
+### Development workflow
 
-### 9. Enable automatic processing
+```bash
+# Push local changes
+clasp push
 
-Run `setupTrigger()` to check for new transcripts every 15 minutes.
+# Pull remote changes
+clasp pull
+```
 
-## Functions
+---
+
+## Project structure
+
+```
+├── src/
+│   ├── Code.gs          # Main processing logic
+│   ├── Config.gs        # Configuration and secrets management
+│   ├── Triggers.gs      # Automatic trigger setup
+│   ├── Test.gs          # Test functions
+│   └── appsscript.json  # Apps Script manifest
+├── .clasp.json.example  # Clasp config template
+├── .gitignore
+├── LICENSE
+└── README.md
+```
+
+## Functions reference
 
 | Function | Description |
 |----------|-------------|
@@ -133,26 +172,6 @@ Run `setupTrigger()` to check for new transcripts every 15 minutes.
 | `removeTrigger()` | Disable automatic trigger |
 | `listTriggers()` | List all triggers |
 
-## Development workflow
-
-Make changes locally, then push:
-
-```bash
-clasp push
-```
-
-Pull remote changes:
-
-```bash
-clasp pull
-```
-
-## Costs
-
-- **Google Apps Script**: Free
-- **Claude API**: ~$0.002-0.01 per transcript (~$1-2/month typical usage)
-- **Things 3**: You already own it
-
 ## How action extraction works
 
 The script uses Claude to identify action items assigned to you. For example:
@@ -166,6 +185,12 @@ The script uses Claude to identify action items assigned to you. For example:
 - "Talk to the team with Jane Doe about the proposal"
 
 Claude removes your name from the start and creates clean, actionable task titles.
+
+## Costs
+
+- **Google Apps Script**: Free
+- **Claude API**: ~$0.002-0.01 per transcript (~$1-2/month typical usage)
+- **Things 3**: You already own it
 
 ## Troubleshooting
 
