@@ -1,0 +1,11 @@
+# Clasp
+.clasp.json
+
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+
+# Secrets
+secrets.json
